@@ -68,8 +68,6 @@ void loop() {
     if (tick and stuffToSend) {
       stuffToSend = false;
       digitalWrite(SSerialTxControl, RS485Transmit);  // Enable RS485 Transmit
-      if (addr==(byte)0x01) addr = (byte)0x02;
-      else if (addr==(byte)0x02) addr = (byte)0x01;
       RS485Serial.write(addr);   // Send byte to Remote Arduino
       RS485Serial.write(byteReceived); // Send byte to Remote Arduino
       digitalWrite(SSerialTxControl, RS485Receive);  // Disable RS485 Transmit
@@ -77,9 +75,22 @@ void loop() {
   }
   
   while (Serial.available()) {
-    byteReceived = Serial.read();
+    switch (Serial.read()) {
+      case 'A':
+        while (!Serial.available());
+        addr = (byte)(Serial.read()-'0');
+        break;
+      default:
+        byteReceived = Serial.read();
+        break;
+    }
     stuffToSend = true;
   }
+  
+  /*while (Serial.available()) {
+    byteReceived = Serial.read();
+    stuffToSend = true;
+  }*/
   
   while (RS485Serial.available()) {
     byteReceived = RS485Serial.read();    // Read received byte
