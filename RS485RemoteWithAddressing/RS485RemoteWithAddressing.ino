@@ -28,7 +28,7 @@
 byte byteReceived;
 int byteSend;
 int reply;
-const byte addr = 0x01;
+const byte addr = 0x02;
 
 void setup() {  /****** SETUP: RUNS ONCE ******/
   //pinMode(Pin13LED, OUTPUT);   
@@ -48,7 +48,7 @@ void loop() {  /****** LOOP: RUNS CONSTANTLY ******/
       byteSend = Serial.read();
       switch (byteSend) {
         case 0x05:
-          reply = 'e';
+          reply = 0x06;
           break;
          default:
           reply = byteSend;

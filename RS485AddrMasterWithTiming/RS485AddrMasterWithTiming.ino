@@ -93,6 +93,9 @@ void loop() {
   
   while (RS485Serial.available()) {
     byteReceived = RS485Serial.read();    // Read received byte
+    if (byteReceived == 0x06) {
+      byteReceived = 0x7E;
+    }
     Serial.write(byteReceived);        // Show on Serial Monitor
    }  
 
