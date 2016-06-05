@@ -27,7 +27,7 @@
 /*-----( Declare Variables )-----*/
 byte byteReceived;
 int byteSend;
-const byte addr = 0x02;
+const byte addr = 0x01;
 
 void setup() {  /****** SETUP: RUNS ONCE ******/
   //pinMode(Pin13LED, OUTPUT);   
