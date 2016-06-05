@@ -25,7 +25,7 @@
 //SoftwareSerial RS485Serial(SSerialRX, SSerialTX); // RX, TX
 
 /*-----( Declare Variables )-----*/
-int byteReceived;
+byte byteReceived;
 int byteSend;
 const byte addr = 0x02;
 
@@ -45,12 +45,12 @@ void loop() {  /****** LOOP: RUNS CONSTANTLY ******/
     if (byteSend == addr) {
       while (!Serial.available()) {}
       byteSend = Serial.read();
-      //delay(10);
+      delay(10);
     
       digitalWrite(SSerialTxControl, RS485Transmit);  // Enable RS485 Transmit
       Serial.write(addr+'0');
       delay(10);
-      Serial.write('A');
+      Serial.write(byteSend);
       //Serial.write('a'); // Send the byte back
       delay(10);   
       digitalWrite(SSerialTxControl, RS485Receive);  // Disable RS485 Transmit
