@@ -81,6 +81,10 @@ void loop() {
         while (!Serial.available());
         addr = (byte)(Serial.read()-'0');
         break;
+       case 'E':
+        stuffToSend = true;
+        byteSend = 0x05;
+        break;
       default:
         stuffToSend = true;
         break;
