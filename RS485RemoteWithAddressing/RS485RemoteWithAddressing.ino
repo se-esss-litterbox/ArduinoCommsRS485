@@ -25,7 +25,7 @@
 //SoftwareSerial RS485Serial(SSerialRX, SSerialTX); // RX, TX
 
 /*-----( Declare Variables )-----*/
-int byteReceived;
+byte byteReceived;
 int byteSend;
 const byte addr = 0x01;
 
@@ -34,7 +34,7 @@ void setup() {  /****** SETUP: RUNS ONCE ******/
   pinMode(SSerialTxControl, OUTPUT);
   digitalWrite(SSerialTxControl, RS485Receive);  // Init Transceiver
   // Start the software serial port, to another device
-  Serial.begin(57600);   // set the data rate
+  Serial.begin(9600);   // set the data rate
 }//--(end setup )---
 
 void loop() {  /****** LOOP: RUNS CONSTANTLY ******/
@@ -44,14 +44,14 @@ void loop() {  /****** LOOP: RUNS CONSTANTLY ******/
     //if ((byteSend == (byte)0x00) | (byteSend == addr)) {
     if (byteSend == addr) {
       while (!Serial.available()) {}
-      //byteSend = Serial.read();
-      byteSend = (byte)'1';
-      //delay(10);
+      byteSend = Serial.read();
+      delay(10);
     
       digitalWrite(SSerialTxControl, RS485Transmit);  // Enable RS485 Transmit
-      //Serial.write(addr);
-      //delay(10);
-      Serial.write('1'); // Send the byte back
+      Serial.write(addr+'0');
+      delay(10);
+      Serial.write(byteSend);
+      //Serial.write('a'); // Send the byte back
       delay(10);   
       digitalWrite(SSerialTxControl, RS485Receive);  // Disable RS485 Transmit
     } else {

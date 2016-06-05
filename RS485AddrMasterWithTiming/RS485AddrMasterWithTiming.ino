@@ -18,8 +18,8 @@
 
 /*-----( Declare objects )-----*/
 SoftwareSerial RS485Serial(SSerialRX, SSerialTX); // RX, TX
-int byteReceived;
-int byteSend;
+byte byteReceived;
+byte byteSend;
 const unsigned int baseFreq = 8192;
 const unsigned int primaryTrigFreq = 14;
 const unsigned int cmp = baseFreq/primaryTrigFreq;
@@ -43,7 +43,7 @@ void setup() {
   digitalWrite(SSerialTxControl, RS485Receive);  // Init Transceiver   
   
   // Start the software serial port, to another device
-  RS485Serial.begin(57600);   // set the data rate 
+  RS485Serial.begin(9600);   // set the data rate 
   
   /* Possible values for the following function:
   *  SQWAVE_NONE
@@ -69,28 +69,23 @@ void loop() {
       stuffToSend = false;
       digitalWrite(SSerialTxControl, RS485Transmit);  // Enable RS485 Transmit
       RS485Serial.write(addr);   // Send byte to Remote Arduino
-      RS485Serial.write(byteReceived); // Send byte to Remote Arduino
+      RS485Serial.write(byteSend); // Send byte to Remote Arduino
       digitalWrite(SSerialTxControl, RS485Receive);  // Disable RS485 Transmit
     }
   }
   
   while (Serial.available()) {
-    switch (Serial.read()) {
+    byteSend = Serial.read();
+    switch (byteSend) {
       case 'A':
         while (!Serial.available());
         addr = (byte)(Serial.read()-'0');
         break;
       default:
-        byteReceived = Serial.read();
+        stuffToSend = true;
         break;
     }
-    stuffToSend = true;
   }
-  
-  /*while (Serial.available()) {
-    byteReceived = Serial.read();
-    stuffToSend = true;
-  }*/
   
   while (RS485Serial.available()) {
     byteReceived = RS485Serial.read();    // Read received byte
