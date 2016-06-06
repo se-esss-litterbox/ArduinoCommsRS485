@@ -77,7 +77,7 @@ void loop() {
   while (Serial.available()) {
     byteSend = Serial.read();
     switch (byteSend) {
-      case 'A':
+      /*case 'A':
         while (!Serial.available());
         addr = (byte)(Serial.read()-'0');
         break;
@@ -88,7 +88,7 @@ void loop() {
        case 'S':
         byteSend = 0x11;
         stuffToSend = true;
-        break;
+        break;*/
       default:
         stuffToSend = true;
         break;
