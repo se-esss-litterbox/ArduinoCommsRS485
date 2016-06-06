@@ -102,7 +102,6 @@ void loop() {
     }
     Serial.write(byteReceived);        // Show on Serial Monitor
    }  
-
 }//--(end main loop )---
 
 void trigFunc() {
