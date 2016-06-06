@@ -22,30 +22,30 @@
 //#define Pin13LED         13
 
 /*-----( Declare objects )-----*/
-//SoftwareSerial RS485Serial(SSerialRX, SSerialTX); // RX, TX
+SoftwareSerial RS485Serial(SSerialRX, SSerialTX); // RX, TX
 
 /*-----( Declare Variables )-----*/
 byte byteReceived;
 int byteSend;
 int reply;
-const byte addr = 0x02;
+const byte addr = 0x01;
 
 void setup() {  /****** SETUP: RUNS ONCE ******/
   //pinMode(Pin13LED, OUTPUT);   
   pinMode(SSerialTxControl, OUTPUT);
   digitalWrite(SSerialTxControl, RS485Receive);  // Init Transceiver
   // Start the software serial port, to another device
-  Serial.begin(9600);   // set the data rate
+  RS485Serial.begin(9600);   // set the data rate
 }//--(end setup )---
 
 void loop() {  /****** LOOP: RUNS CONSTANTLY ******/
-  if (Serial.available()) {
-    byteSend = Serial.read();   // Read the byte 
+  if (RS485Serial.available()) {
+    byteSend = RS485Serial.read();   // Read the byte 
     
     //if ((byteSend == (byte)0x00) | (byteSend == addr)) {
     if (byteSend == addr) {
-      while (!Serial.available()) {}
-      byteSend = Serial.read();
+      while (!RS485Serial.available()) {}
+      byteSend = RS485Serial.read();
       switch (byteSend) {
         case 0x05:
           reply = 0x06;
@@ -55,15 +55,15 @@ void loop() {  /****** LOOP: RUNS CONSTANTLY ******/
           break;
       }
       digitalWrite(SSerialTxControl, RS485Transmit);  // Enable RS485 Transmit
-      Serial.write(addr+'0');
+      RS485Serial.print(addr);
       delay(10);
-      Serial.write(reply);
-      //Serial.write('a'); // Send the byte back
+      RS485Serial.write(reply);
+      //RS485Serial.write('a'); // Send the byte back
       delay(10);   
       digitalWrite(SSerialTxControl, RS485Receive);  // Disable RS485 Transmit
     } else {
-      while (Serial.available()) {
-        Serial.read();
+      while (RS485Serial.available()) {
+        RS485Serial.read();
       }
     }
   }// End If RS485SerialAvailable  
