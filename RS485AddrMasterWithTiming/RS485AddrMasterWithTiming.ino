@@ -85,6 +85,10 @@ void loop() {
         byteSend = 0x05;
         stuffToSend = true;
         break;
+       case 'S':
+        byteSend = 0x11;
+        stuffToSend = true;
+        break;
       default:
         stuffToSend = true;
         break;

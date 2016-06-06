@@ -28,6 +28,7 @@ SoftwareSerial RS485Serial(SSerialRX, SSerialTX); // RX, TX
 byte byteReceived;
 int byteSend;
 int reply;
+unsigned int state = 1;
 const byte addr = 0x01;
 
 void setup() {  /****** SETUP: RUNS ONCE ******/
@@ -50,7 +51,12 @@ void loop() {  /****** LOOP: RUNS CONSTANTLY ******/
         case 0x05:
           reply = 0x06;
           break;
-         default:
+        case 0x11:
+          reply = 0x11;
+          while (!RS485Serial.available()) {}
+          state = RS485Serial.read();
+          break;
+        default:
           reply = byteSend;
           break;
       }
@@ -58,6 +64,8 @@ void loop() {  /****** LOOP: RUNS CONSTANTLY ******/
       RS485Serial.print(addr);
       delay(10);
       RS485Serial.write(reply);
+      delay(10);
+      RS485Serial.write(state);
       //RS485Serial.write('a'); // Send the byte back
       delay(10);   
       digitalWrite(SSerialTxControl, RS485Receive);  // Disable RS485 Transmit
