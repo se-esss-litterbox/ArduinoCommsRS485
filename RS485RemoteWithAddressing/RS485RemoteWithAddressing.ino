@@ -38,36 +38,14 @@ void setup() {  /****** SETUP: RUNS ONCE ******/
   digitalWrite(SSerialTxControl, RS485Receive);  // Init Transceiver
   // Start the software serial port, to another device
   RS485Serial.begin(9600);   // set the data rate
+  Serial.begin(9600);
 }//--(end setup )---
 
 void loop() {  /****** LOOP: RUNS CONSTANTLY ******/
   if (RS485Serial.available()) {
-    byteSend = RS485Serial.read();   // Read the byte 
-    
-    //if ((byteSend == (byte)0x00) | (byteSend == addr)) {
-    if (byteSend == addr) {
-      while (!RS485Serial.available()) {}
-      byteSend = RS485Serial.read();
-      switch (byteSend) {
-        case 0x05:
-          reply = 0x06;
-          break;
-        case 0x11:
-          reply = 0x11;
-          while (!RS485Serial.available()) {}
-          state = RS485Serial.read();
-          break;
-        default:
-          reply = byteSend;
-          break;
-      }
-      reply2 = state;
-      frameSender();
-    } else {
-      while (RS485Serial.available()) {
-        RS485Serial.read();
-      }
-    }
+    frameAddr = RS485Serial.read();
+    frameConsumer();
+    frameSender();
   }// End If RS485SerialAvailable  
 }//--(end main loop )---
 
@@ -94,12 +72,15 @@ void frameConsumer() {
 }
 
 void frameSender() {
-   digitalWrite(SSerialTxControl, RS485Transmit);  // Enable RS485 Transmit
+  digitalWrite(SSerialTxControl, RS485Transmit);  // Enable RS485 Transmit
   RS485Serial.write(addr);
+  Serial.write(addr);
   delay(10);
   RS485Serial.write(reply1);
+  Serial.write(reply1);
   delay(10);
   RS485Serial.write(reply2);
+  Serial.write(reply2);
   delay(10);
   digitalWrite(SSerialTxControl, RS485Receive);  // Disable RS485 Transmit
 }
