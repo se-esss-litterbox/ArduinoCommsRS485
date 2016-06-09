@@ -72,12 +72,12 @@ void loop() {
 void frameBuilder() {
   byteSend1 = Serial.read();
   while (!Serial.available()) {}
-  byteSend2 = Serial.read();
   switch (byteSend1) {
     case 'A':
       while (!Serial.available());
       addr = (byte)(Serial.read()-'0');
-      Serial.print(addr);
+      Serial.print("\nNew addr = ");
+      Serial.println(addr);
       break;
     /*case 'E':
       byteSend = 0x05;
@@ -88,6 +88,7 @@ void frameBuilder() {
       stuffToSend = true;
       break;*/
     default:
+      byteSend2 = Serial.read();
       stuffToSend = true;
       break;
   }

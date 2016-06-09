@@ -14,7 +14,6 @@
 /*-----( Declare Constants and Pin Numbers )-----*/
 #define SSerialRX        10  //Serial Receive pin
 #define SSerialTX        11  //Serial Transmit pin
-
 #define SSerialTxControl 3   //RS485 Direction control
 #define RS485Transmit    HIGH
 #define RS485Receive     LOW
@@ -30,7 +29,7 @@ int byteSend;
 int reply;
 int frameAddr, reply1, reply2;
 unsigned int state = 1;
-const byte addr = 0x01;
+const byte addr = 0x02;
 
 void setup() {  /****** SETUP: RUNS ONCE ******/
   //pinMode(Pin13LED, OUTPUT);   
