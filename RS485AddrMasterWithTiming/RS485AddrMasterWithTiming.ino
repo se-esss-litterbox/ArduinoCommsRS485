@@ -26,7 +26,6 @@ const unsigned int halfcmp = cmp/2;
 volatile unsigned long ctr = 0;
 volatile unsigned long ctr2 = 0;
 volatile bool tick;
-bool lasttick;
 bool stuffToSend = false;
 byte addr = 0x01;
 
@@ -115,7 +114,7 @@ void trigFunc() {
     PORTB ^= 1 << (ledPin-8);
     tick = true;
   }
-  if (ctr2==0) PORTB = PORTB | B00000001;
-  else PORTB = PORTB & B11111110;
+  if (ctr2==0) PORTB |= B00000001;
+  else PORTB &= B11111110;
 }
 
