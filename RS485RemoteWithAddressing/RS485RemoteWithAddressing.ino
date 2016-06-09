@@ -14,12 +14,9 @@
 /*-----( Declare Constants and Pin Numbers )-----*/
 #define SSerialRX        10  //Serial Receive pin
 #define SSerialTX        11  //Serial Transmit pin
-
 #define SSerialTxControl 3   //RS485 Direction control
 #define RS485Transmit    HIGH
 #define RS485Receive     LOW
-
-//#define Pin13LED         13
 
 /*-----( Declare objects )-----*/
 SoftwareSerial RS485Serial(SSerialRX, SSerialTX); // RX, TX
@@ -28,8 +25,9 @@ SoftwareSerial RS485Serial(SSerialRX, SSerialTX); // RX, TX
 byte byteReceived;
 int byteSend;
 int reply;
+int frameAddr, reply1, reply2;
 unsigned int state = 1;
-const byte addr = 0x01;
+const byte addr = 0x02;
 
 void setup() {  /****** SETUP: RUNS ONCE ******/
   //pinMode(Pin13LED, OUTPUT);   
@@ -41,39 +39,48 @@ void setup() {  /****** SETUP: RUNS ONCE ******/
 
 void loop() {  /****** LOOP: RUNS CONSTANTLY ******/
   if (RS485Serial.available()) {
-    byteSend = RS485Serial.read();   // Read the byte 
-    
-    //if ((byteSend == (byte)0x00) | (byteSend == addr)) {
-    if (byteSend == addr) {
-      while (!RS485Serial.available()) {}
-      byteSend = RS485Serial.read();
-      switch (byteSend) {
-        case 0x05:
-          reply = 0x06;
-          break;
-        case 0x11:
-          reply = 0x11;
-          while (!RS485Serial.available()) {}
-          state = RS485Serial.read();
-          break;
-        default:
-          reply = byteSend;
-          break;
-      }
-      digitalWrite(SSerialTxControl, RS485Transmit);  // Enable RS485 Transmit
-      RS485Serial.print(addr);
-      delay(10);
-      RS485Serial.write(reply);
-      delay(10);
-      RS485Serial.write(state);
-      //RS485Serial.write('a'); // Send the byte back
-      delay(10);   
-      digitalWrite(SSerialTxControl, RS485Receive);  // Disable RS485 Transmit
-    } else {
+    frameAddr = RS485Serial.read();
+    if (frameAddr == addr) { // this message *is* for me
+      frameConsumer();
+      delay(5);
+      frameSender();
+    } else { // this message isn't for me
       while (RS485Serial.available()) {
         RS485Serial.read();
       }
     }
-  }// End If RS485SerialAvailable  
+  }// End If RS485SerialAvailable
 }//--(end main loop )---
+
+void frameConsumer() {
+  int byte1, byte2;
+  while (!RS485Serial.available()) {}
+  byte1 = RS485Serial.read();
+  while (!RS485Serial.available()) {}
+  byte2 = RS485Serial.read();
+
+  reply1 = byte1;
+  reply2 = byte2;
+  /*switch (byte1) {
+    case 0x05:
+      reply1 = 0x06;
+      reply2 = state;
+      break;
+    case 0x11:
+      reply1 = 0x11;
+      reply2 = state;
+      break;
+    default:
+      reply1 = '1';
+      reply2 = '2';
+      break;
+  }*/
+}
+
+void frameSender() {
+  digitalWrite(SSerialTxControl, RS485Transmit);  // Enable RS485 Transmit
+  RS485Serial.write(reply1);
+  RS485Serial.write(reply2);
+  digitalWrite(SSerialTxControl, RS485Receive);  // Disable RS485 Transmit
+}
 
