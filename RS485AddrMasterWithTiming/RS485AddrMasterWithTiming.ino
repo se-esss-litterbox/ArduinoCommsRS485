@@ -15,13 +15,12 @@
 #define ledPin           8
 #define trigPin          7
 #define interruptPin     2
+#define baseFreq         8192
+#define primaryTrigFreq  14
 
 /*-----( Declare objects )-----*/
 SoftwareSerial RS485Serial(SSerialRX, SSerialTX); // RX, TX
-byte byteReceived;
-byte byteSend;
-const unsigned int baseFreq = 8192;
-const unsigned int primaryTrigFreq = 14;
+byte byteReceived, byteSend1, byteSend2;
 const unsigned int cmp = baseFreq/primaryTrigFreq;
 const unsigned int halfcmp = cmp/2;
 volatile unsigned long ctr = 0;
@@ -65,20 +64,15 @@ void loop() {
     digitalWrite(trigPin, LOW);
     digitalWrite(ledPin, !digitalRead(ledPin));
     lasttick = tick;
-    if (tick and stuffToSend) {
-      stuffToSend = false;
-      digitalWrite(SSerialTxControl, RS485Transmit);  // Enable RS485 Transmit
-      RS485Serial.write(addr);   // Send byte to Remote Arduino
-      RS485Serial.write(byteSend); // Send byte to Remote Arduino
-      RS485Serial.write(byteSend); // Send byte to Remote Arduino
-      digitalWrite(SSerialTxControl, RS485Receive);  // Disable RS485 Transmit
-    }
+    if (tick and stuffToSend) frameSender();
   }
   
   while (Serial.available()) {
-    byteSend = Serial.read();
-    switch (byteSend) {
-      /*case 'A':
+    frameBuilder();
+    /*
+    byteSend1 = Serial.read();
+    switch (byteSend1) {
+      case 'A':
         while (!Serial.available());
         addr = (byte)(Serial.read()-'0');
         break;
@@ -89,11 +83,13 @@ void loop() {
        case 'S':
         byteSend = 0x11;
         stuffToSend = true;
-        break;*/
+        break;
       default:
+        byteSend2 = byteSend1;
         stuffToSend = true;
         break;
     }
+    */
   }
   
   while (RS485Serial.available()) {
@@ -104,6 +100,22 @@ void loop() {
     Serial.write(byteReceived);        // Show on Serial Monitor
    }  
 }//--(end main loop )---
+
+void frameBuilder() {
+  byteSend1 = Serial.read();
+  while (!Serial.available()) {}
+  byteSend2 = Serial.read();
+  stuffToSend = true;
+}
+
+void frameSender() {
+  stuffToSend = false;
+  digitalWrite(SSerialTxControl, RS485Transmit);  // Enable RS485 Transmit
+  RS485Serial.write(addr);   // Send byte to Remote Arduino
+  RS485Serial.write(byteSend1); // Send byte to Remote Arduino
+  RS485Serial.write(byteSend2); // Send byte to Remote Arduino
+  digitalWrite(SSerialTxControl, RS485Receive);  // Disable RS485 Transmit
+}
 
 void trigFunc() {
   ctr++;
