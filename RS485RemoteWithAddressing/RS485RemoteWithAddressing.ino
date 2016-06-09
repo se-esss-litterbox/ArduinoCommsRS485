@@ -18,8 +18,6 @@
 #define RS485Transmit    HIGH
 #define RS485Receive     LOW
 
-//#define Pin13LED         13
-
 /*-----( Declare objects )-----*/
 SoftwareSerial RS485Serial(SSerialRX, SSerialTX); // RX, TX
 
