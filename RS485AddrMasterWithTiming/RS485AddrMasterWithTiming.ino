@@ -70,6 +70,7 @@ void loop() {
       digitalWrite(SSerialTxControl, RS485Transmit);  // Enable RS485 Transmit
       RS485Serial.write(addr);   // Send byte to Remote Arduino
       RS485Serial.write(byteSend); // Send byte to Remote Arduino
+      RS485Serial.write(byteSend); // Send byte to Remote Arduino
       digitalWrite(SSerialTxControl, RS485Receive);  // Disable RS485 Transmit
     }
   }
