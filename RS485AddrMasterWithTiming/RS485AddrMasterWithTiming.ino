@@ -12,8 +12,8 @@
 #define SSerialTxControl 3   //RS485 Direction control pin
 #define RS485Transmit    HIGH
 #define RS485Receive     LOW
-#define ledPin           8
-#define trigPin          7
+#define ledPin           9
+#define trigPin          8
 #define interruptPin     2
 #define baseFreq         8192
 #define primaryTrigFreq  14
@@ -58,13 +58,7 @@ void setup() {
 }//--(end setup )---
 
 void loop() {
-  if (ctr2==0) digitalWrite(trigPin, HIGH);
-  if (!tick == lasttick) {
-    digitalWrite(trigPin, LOW);
-    digitalWrite(ledPin, !digitalRead(ledPin));
-    lasttick = tick;
-    if (tick and stuffToSend) frameSender();
-  }
+  if (tick and stuffToSend) frameSender();
   
   while (Serial.available()) frameBuilder();
   
@@ -112,12 +106,16 @@ void frameSender() {
 void trigFunc() {
   ctr++;
   if (ctr == halfcmp) {
+    PORTB ^= 1 << (ledPin-8);
     tick = false;
   } else if (ctr == cmp) {
     ctr = 0;
     if (ctr2<7) ctr2++;
     else ctr2 = 0;
+    PORTB ^= 1 << (ledPin-8);
     tick = true;
   }
+  if (ctr2==0) PORTB = PORTB | B00000001;
+  else PORTB = PORTB & B11111110;
 }
 
