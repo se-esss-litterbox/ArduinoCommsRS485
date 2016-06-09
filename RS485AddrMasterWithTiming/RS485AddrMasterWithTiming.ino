@@ -57,9 +57,8 @@ void setup() {
 }//--(end setup )---
 
 void loop() {
-  if (tick and stuffToSend) frameSender();
-  
   while (Serial.available()) frameBuilder();
+  if (tick and stuffToSend) frameSender();
   
   while (RS485Serial.available()) {
     byteReceived = RS485Serial.read(); // Read received byte
@@ -78,6 +77,7 @@ void frameBuilder() {
     case 'A':
       while (!Serial.available());
       addr = (byte)(Serial.read()-'0');
+      Serial.print(addr);
       break;
     /*case 'E':
       byteSend = 0x05;
