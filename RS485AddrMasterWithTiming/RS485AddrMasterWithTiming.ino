@@ -38,7 +38,6 @@ void setup() {
   setSyncProvider(RTC.get);   // the function to get the time from the RTC
     
   pinMode(SSerialTxControl, OUTPUT);    
-  
   digitalWrite(SSerialTxControl, RS485Receive);  // Init Transceiver   
   
   // Start the software serial port, to another device
@@ -70,11 +69,11 @@ void loop() {
   while (Serial.available()) frameBuilder();
   
   while (RS485Serial.available()) {
-    byteReceived = RS485Serial.read();    // Read received byte
+    byteReceived = RS485Serial.read(); // Read received byte
     if (byteReceived == 0x06) {
       byteReceived = 0x7E;
     }
-    Serial.write(byteReceived);        // Show on Serial Monitor
+    Serial.write(byteReceived); // Show on Serial Monitor
    }  
 }//--(end main loop )---
 
@@ -82,28 +81,23 @@ void frameBuilder() {
   byteSend1 = Serial.read();
   while (!Serial.available()) {}
   byteSend2 = Serial.read();
-  stuffToSend = true;
-  /*
-  byteSend1 = Serial.read();
   switch (byteSend1) {
     case 'A':
       while (!Serial.available());
       addr = (byte)(Serial.read()-'0');
       break;
-    case 'E':
+    /*case 'E':
       byteSend = 0x05;
       stuffToSend = true;
       break;
     case 'S':
       byteSend = 0x11;
       stuffToSend = true;
-      break;
+      break;*/
     default:
-      byteSend2 = byteSend1;
       stuffToSend = true;
       break;
   }
-  */
 }
 
 void frameSender() {
