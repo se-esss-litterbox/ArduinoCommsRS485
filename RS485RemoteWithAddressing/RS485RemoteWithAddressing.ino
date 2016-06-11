@@ -34,42 +34,43 @@ void setup() {  /****** SETUP: RUNS ONCE ******/
 
 void loop() {  /****** LOOP: RUNS CONSTANTLY ******/
   if (RS485Serial.available()) {
-    frameAddr = RS485Serial.read();
-    if (frameAddr == addr) { // this message *is* for me
-      frameConsumer();
+    frameConsumer();
+    if (frameAddr == addr) { // I should reply
       delay(5);
       frameSender();
-    } else { // this message isn't for me
-      while (RS485Serial.available()) {
-        RS485Serial.read();
-      }
     }
   }// End If RS485SerialAvailable
 }//--(end main loop )---
 
 void frameConsumer() {
   int byte1, byte2;
-  while (!RS485Serial.available()) {}
-  byte1 = RS485Serial.read();
-  while (!RS485Serial.available()) {}
-  byte2 = RS485Serial.read();
+  frameAddr = RS485Serial.read();
+  if (frameAddr == addr) {
+    while (!RS485Serial.available()) {}
+    byte1 = RS485Serial.read();
+    while (!RS485Serial.available()) {}
+    byte2 = RS485Serial.read();
 
-  reply1 = byte1;
-  reply2 = byte2;
-  /*switch (byte1) {
-    case 0x05:
-      reply1 = 0x06;
-      reply2 = state;
-      break;
-    case 0x11:
-      reply1 = 0x11;
-      reply2 = state;
-      break;
-    default:
-      reply1 = '1';
-      reply2 = '2';
-      break;
-  }*/
+    switch (byte1) {
+      case 0x05:
+        reply1 = 0x06;
+        reply2 = state;
+        break;
+      case 0x11:
+        reply1 = 0x11;
+        if (byte2=='0'+1 || byte2=='0'+2) {
+          state = byte2-'0';
+          reply2 = state;
+        } else {
+          reply2 = 0x15;
+        }
+        break;
+      default:
+        reply1 = byte1;
+        reply2 = byte2;
+        break;
+    }
+  }
 }
 
 void frameSender() {
@@ -77,6 +78,8 @@ void frameSender() {
   RS485Serial.write(reply1);
   RS485Serial.write(reply2);
   digitalWrite(SSerialTxControl, RS485Receive);  // Disable RS485 Transmit
+  reply1 = 0x00;
+  reply2 = 0x00;
 }
 
 void trigFunc() {

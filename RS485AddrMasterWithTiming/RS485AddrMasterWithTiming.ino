@@ -63,31 +63,41 @@ void loop() {
   while (RS485Serial.available()) {
     byteReceived = RS485Serial.read(); // Read received byte
     if (byteReceived == 0x06) {
-      byteReceived = 0x7E;
+      byteReceived = '~';
+    } else if (byteReceived == 0x01 || byteReceived == 0x02) {
+      byteReceived += '0';
+    } else if (byteReceived == 0x11) {
+      byteReceived = 'D';
+    } else if (byteReceived == 0x15) {
+      byteReceived = 'N';
     }
     Serial.write(byteReceived); // Show on Serial Monitor
+    //Serial.println();
    }  
 }//--(end main loop )---
 
 void frameBuilder() {
   byteSend1 = Serial.read();
-  while (!Serial.available()) {}
   switch (byteSend1) {
     case 'A':
-      while (!Serial.available());
+      while (!Serial.available()) {}
       addr = (byte)(Serial.read()-'0');
-      Serial.print("\nNew addr = ");
+      Serial.print("\n\rNew addr = ");
       Serial.println(addr);
       break;
-    /*case 'E':
-      byteSend = 0x05;
+    case 'E':
+      byteSend1 = 0x05;
+      byteSend2 = 0x00;
       stuffToSend = true;
       break;
     case 'S':
-      byteSend = 0x11;
+      while (!Serial.available()) {}
+      byteSend1 = 0x11;
+      byteSend2 = Serial.read();
       stuffToSend = true;
-      break;*/
+      break;
     default:
+      while (!Serial.available()) {}
       byteSend2 = Serial.read();
       stuffToSend = true;
       break;
@@ -101,6 +111,8 @@ void frameSender() {
   RS485Serial.write(byteSend1); // Send byte to Remote Arduino
   RS485Serial.write(byteSend2); // Send byte to Remote Arduino
   digitalWrite(SSerialTxControl, RS485Receive);  // Disable RS485 Transmit
+  byteSend1 = 0x00;
+  byteSend2 = 0x00;
 }
 
 void trigFunc() {
