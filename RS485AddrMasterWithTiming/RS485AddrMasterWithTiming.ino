@@ -84,6 +84,9 @@ void frameBuilder() {
       addr = (byte)(Serial.read()-'0');
       Serial.print("\n\rNew addr = ");
       Serial.println(addr);
+      while (Serial.available()) {
+        Serial.read();
+      }
       break;
     case 'E':
       byteSend1 = 0x05;

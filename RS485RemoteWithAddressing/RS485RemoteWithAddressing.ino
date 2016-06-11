@@ -18,7 +18,7 @@ SoftwareSerial RS485Serial(SSerialRX, SSerialTX); // RX, TX
 /*-----( Declare Variables )-----*/
 byte byteReceived;
 int byteSend, reply, frameAddr, reply1, reply2;
-unsigned int state = 1;
+unsigned int state = 'A';
 const byte addr = 0x02;
 
 void setup() {  /****** SETUP: RUNS ONCE ******/
@@ -58,8 +58,8 @@ void frameConsumer() {
         break;
       case 0x11:
         reply1 = 0x11;
-        if (byte2=='0'+1 || byte2=='0'+2) {
-          state = byte2-'0';
+        if (byte2=='A' || byte2=='B') {
+          state = byte2;
           reply2 = state;
         } else {
           reply2 = 0x15;
@@ -84,10 +84,10 @@ void frameSender() {
 
 void trigFunc() {
   switch (state) {
-    case 1:
+    case 'A':
       digitalWrite(statePin, !digitalRead(statePin));
       break;
-    case 2:
+    case 'B':
       digitalWrite(statePin, LOW);
       break;
     default:
