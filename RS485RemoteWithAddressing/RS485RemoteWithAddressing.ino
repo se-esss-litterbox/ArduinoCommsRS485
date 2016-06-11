@@ -1,12 +1,4 @@
-/* YourDuino SoftwareSerialExample1Remote
-   - Used with YD_SoftwareSerialExampleRS485_1 on another Arduino
-   - Remote: Receive data, loop it back...
-   - Connect this unit Pins 10, 11, Gnd
-   - To other unit Pins 11,10, Gnd  (Cross over)
-   - Pin 3 used for RS485 direction control   
-   - Pin 13 LED blinks when data is received  
-   
-   Questions: terry@yourduino.com 
+/* 
 */
 
 /*-----( Import needed libraries )-----*/
@@ -14,51 +6,93 @@
 /*-----( Declare Constants and Pin Numbers )-----*/
 #define SSerialRX        10  //Serial Receive pin
 #define SSerialTX        11  //Serial Transmit pin
-
 #define SSerialTxControl 3   //RS485 Direction control
 #define RS485Transmit    HIGH
 #define RS485Receive     LOW
-
-//#define Pin13LED         13
+#define intPin           2
+#define statePin         5
 
 /*-----( Declare objects )-----*/
-//SoftwareSerial RS485Serial(SSerialRX, SSerialTX); // RX, TX
+SoftwareSerial RS485Serial(SSerialRX, SSerialTX); // RX, TX
 
 /*-----( Declare Variables )-----*/
 byte byteReceived;
-int byteSend;
-const byte addr = 0x01;
+int byteSend, reply, frameAddr, reply1, reply2;
+unsigned int state = 'A';
+const byte addr = 0x02;
 
 void setup() {  /****** SETUP: RUNS ONCE ******/
   //pinMode(Pin13LED, OUTPUT);   
   pinMode(SSerialTxControl, OUTPUT);
+  pinMode(statePin, OUTPUT);
+  digitalWrite(statePin, LOW);
   digitalWrite(SSerialTxControl, RS485Receive);  // Init Transceiver
   // Start the software serial port, to another device
-  Serial.begin(9600);   // set the data rate
+  RS485Serial.begin(9600);   // set the data rate
+  attachInterrupt(digitalPinToInterrupt(intPin), trigFunc, CHANGE);
 }//--(end setup )---
 
 void loop() {  /****** LOOP: RUNS CONSTANTLY ******/
-  if (Serial.available()) {
-    byteSend = Serial.read();   // Read the byte 
-    
-    //if ((byteSend == (byte)0x00) | (byteSend == addr)) {
-    if (byteSend == addr) {
-      while (!Serial.available()) {}
-      byteSend = Serial.read();
-      delay(10);
-    
-      digitalWrite(SSerialTxControl, RS485Transmit);  // Enable RS485 Transmit
-      Serial.write(addr+'0');
-      delay(10);
-      Serial.write(byteSend);
-      //Serial.write('a'); // Send the byte back
-      delay(10);   
-      digitalWrite(SSerialTxControl, RS485Receive);  // Disable RS485 Transmit
-    } else {
-      while (Serial.available()) {
-        Serial.read();
-      }
+  if (RS485Serial.available()) {
+    frameConsumer();
+    if (frameAddr == addr) { // I should reply
+      delay(5);
+      frameSender();
     }
-  }// End If RS485SerialAvailable  
+  }// End If RS485SerialAvailable
 }//--(end main loop )---
+
+void frameConsumer() {
+  int byte1, byte2;
+  frameAddr = RS485Serial.read();
+  if (frameAddr == addr) {
+    while (!RS485Serial.available()) {}
+    byte1 = RS485Serial.read();
+    while (!RS485Serial.available()) {}
+    byte2 = RS485Serial.read();
+
+    switch (byte1) {
+      case 0x05:
+        reply1 = 0x06;
+        reply2 = state;
+        break;
+      case 0x11:
+        reply1 = 0x11;
+        if (byte2=='A' || byte2=='B') {
+          state = byte2;
+          reply2 = state;
+        } else {
+          reply2 = 0x15;
+        }
+        break;
+      default:
+        reply1 = byte1;
+        reply2 = byte2;
+        break;
+    }
+  }
+}
+
+void frameSender() {
+  digitalWrite(SSerialTxControl, RS485Transmit);  // Enable RS485 Transmit
+  RS485Serial.write(reply1);
+  RS485Serial.write(reply2);
+  digitalWrite(SSerialTxControl, RS485Receive);  // Disable RS485 Transmit
+  reply1 = 0x00;
+  reply2 = 0x00;
+}
+
+void trigFunc() {
+  switch (state) {
+    case 'A':
+      digitalWrite(statePin, !digitalRead(statePin));
+      break;
+    case 'B':
+      digitalWrite(statePin, LOW);
+      break;
+    default:
+      digitalWrite(statePin, LOW);
+      break;
+  }
+}
 
