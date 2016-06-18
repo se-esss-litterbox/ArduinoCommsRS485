@@ -20,6 +20,9 @@
 #define interruptPin     2
 #define baseFreq         8192
 #define primaryTrigFreq  14
+#define ntpInterval      10000
+#define NTP_PACKET_SIZE  48
+#define localPort        8888
 
 /*-----( Declare objects )-----*/
 SoftwareSerial RS485Serial(SSerialRX, SSerialTX); // RX, TX
@@ -31,16 +34,10 @@ volatile unsigned long ctr2 = 0;
 volatile bool tick;
 bool stuffToSend = false;
 byte addr = 0x01;
-
-// Enter a MAC address for your controller below.
-// Newer Ethernet shields have a MAC address printed on a sticker on the shield
 byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
-unsigned int localPort = 8888;       // local port to listen for UDP packets
 char timeServer[] = "time.nist.gov"; // time.nist.gov NTP server
-const int NTP_PACKET_SIZE = 48; // NTP time stamp is in the first 48 bytes
 byte packetBuffer[ NTP_PACKET_SIZE]; //buffer to hold incoming/outgoing packets
 EthernetUDP Udp; // A UDP instance to let us send and receive packets over UDP
-const long ntpInterval = 60000;
 unsigned long prevNTPupdate = 0;
 
 void setup() {
@@ -112,14 +109,14 @@ void loop() {
       Serial.println(epoch);
 
       // print the hour, minute and second:
-      Serial.print("The UTC time is ");       // UTC is the time at Greenwich Meridian (GMT)
-      Serial.print((epoch  % 86400L) / 3600); // print the hour (86400 equals secs per day)
+      Serial.print("The UTC time is ");
+      Serial.print((epoch  % 86400L) / 3600); // print the hour
       Serial.print(':');
       if (((epoch % 3600) / 60) < 10) {
         // In the first 10 minutes of each hour, we'll want a leading '0'
         Serial.print('0');
       }
-      Serial.print((epoch  % 3600) / 60); // print the minute (3600 equals secs per minute)
+      Serial.print((epoch  % 3600) / 60); // print the minute
       Serial.print(':');
       if ((epoch % 60) < 10) {
         // In the first 10 seconds of each minute, we'll want a leading '0'
