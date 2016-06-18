@@ -7,8 +7,8 @@
 #include <DS3232RTC.h>    //http://github.com/JChristensen/DS3232RTC
 
 /*-----( Declare Constants and Pin Numbers )-----*/
-#define SSerialRX        10  //Serial Receive pin
-#define SSerialTX        11  //Serial Transmit pin
+#define SSerialRX        4  //Serial Receive pin
+#define SSerialTX        5  //Serial Transmit pin
 #define SSerialTxControl 3   //RS485 Direction control pin
 #define RS485Transmit    HIGH
 #define RS485Receive     LOW
